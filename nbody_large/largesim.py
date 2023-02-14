@@ -7,8 +7,9 @@ import pygame
 import numpy as np
 
 from body import Body
+from misc import vector_len
+from quadtree import QuadTree
 from timeit import default_timer
-from quadtree import QuadTree, vector_len
 
 # For typing
 numeric = int | float
