@@ -1,5 +1,5 @@
 """
-File for the Body class and System class used in the n-body simulation
+File for the Body class used in the n-body simulation
 """
 
 from __future__ import annotations
@@ -7,7 +7,6 @@ from __future__ import annotations
 import constants
 import numpy as np
 
-from copy import copy
 from misc import sq_len
 from typing import Optional
 
