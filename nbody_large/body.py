@@ -4,30 +4,18 @@ File for the Body class and System class used in the n-body simulation
 
 from __future__ import annotations
 
+import constants
 import numpy as np
 
 from copy import copy
+from misc import sq_len
 from typing import Optional
 
 # For typing
 numeric = int | float
 
 
-def _sq_len(v: np.ndarray) -> numeric:
-    """
-    Squared length of a vector
-    :param v:
-    :return:
-    """
-    return sum(v * v)
-
-
 class Body:
-    big_g = 6.67259e-11  # Gravitational constant [N*m^2/kg^2]
-    m_e = 5.97217e24  # Mass of the Earth [kg]
-    au = 1.495978707e11  # Astronomical unit [m]
-    r_e = 6.371e6  # Mean radius of earth [m]
-
     def __init__(self, m: numeric, v0: np.ndarray, pos: np.ndarray,
                  r: numeric) -> None:
         """
@@ -36,10 +24,10 @@ class Body:
         :param pos: Position of the body at the start [km]
         :param r: Radius of the body [Earth radiuses]
         """
-        self.m = m * self.m_e
+        self.m = m * constants.m_e
         self.vel = v0 * 1e3
-        self.pos = pos * self.au
-        self.r = r * self.r_e
+        self.pos = pos * constants.au
+        self.r = r * constants.r_e
 
     def get_pos(self) -> np.ndarray:
         """
@@ -78,8 +66,8 @@ class Body:
         for b in others:
             direc = b.get_pos() - self.get_pos()
             angle = np.arctan2(direc[1], direc[0])
-            denom = np.power(_sq_len(direc) + epsilon * epsilon, 3 / 2)
-            mag = self.big_g * b.get_mass() * np.sqrt(_sq_len(direc)) / denom
+            denom = np.power(sq_len(direc) + epsilon * epsilon, 3 / 2)
+            mag = constants.big_g * b.get_mass() * np.sqrt(sq_len(direc)) / denom
             acc += np.array([np.cos(angle), np.sin(angle)]) * mag
         return acc
 
@@ -115,7 +103,7 @@ class Body:
         """
         direc = other.get_pos() - self.get_pos()
         r_sum = self.get_radius() + other.get_radius()
-        if _sq_len(direc) <= (r_sum * r_sum):
+        if sq_len(direc) <= (r_sum * r_sum):
             return True
         return False
 
@@ -135,13 +123,13 @@ class Body:
         :param other:
         :return:
         """
-        m = (self.get_mass() + other.get_mass()) / self.m_e
+        m = (self.get_mass() + other.get_mass()) / constants.m_e
         pos = self.get_pos() if self.get_mass() > other.get_mass() else other.get_pos()
-        pos /= self.au
+        pos /= constants.au
         vel = self._end_velocity(other) * 1e-3
         r1 = self.get_radius()
         r2 = other.get_radius()
-        r = np.sqrt(r1 * r1 + r2 * r2) / self.r_e
+        r = np.sqrt(r1 * r1 + r2 * r2) / constants.r_e
         return Body(m=m, v0=vel, pos=pos, r=r)
 
     def __repr__(self) -> str:
