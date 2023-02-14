@@ -52,39 +52,6 @@ class Body:
         """
         return self.vel
 
-    def _acc(self, others: list, epsilon: numeric) -> np.array:
-        """
-        Calculates the gracitational acceleration between the two bodies
-        :param others: List of the other bodies
-        :param epsilon: A number added to the distances between the bodies
-        so that the acceleration doesn't become infinite when the distance
-        is (close to) zero
-        :return:
-        """
-        acc = np.zeros(2)
-        for b in others:
-            direc = b.get_pos() - self.get_pos()
-            angle = np.arctan2(direc[1], direc[0])
-            denom = np.power(sq_len(direc) + epsilon * epsilon, 3 / 2)
-            mag = constants.big_g * b.get_mass() * np.sqrt(sq_len(direc)) / denom
-            acc += np.array([np.cos(angle), np.sin(angle)]) * mag
-        return acc
-
-    def update_position(self, others: list, dt: numeric, epsilon: numeric) -> None:
-        """
-        Updates the position of the body due to the gravitational attraction
-        of the other body
-        :param others:
-        :param dt:
-        :param epsilon: A number added to the distances between the bodies
-        so that the acceleration doesn't become infinite when the distance
-        is (close to) zero
-        :return:
-        """
-        acc = self._acc(others, epsilon)
-        self.pos += self.vel * dt + 0.5 * acc * dt * dt
-        self.vel += acc * dt
-
     def new_update(self, acc: np.ndarray, dt: numeric) -> None:
         """
         Updates the position of the body
