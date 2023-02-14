@@ -3,20 +3,14 @@ Quadtree data structure that is used to split the computational domain of the
 n-body system into smaller areas
 """
 
+import constants
 import numpy as np
 
 from body import Body
+from misc import vector_len
 
 # For typing
 numeric = int | float
-
-
-def vector_len(v: np.ndarray) -> numeric:
-    """
-    :param v:
-    :return:
-    """
-    return np.sqrt(sum(np.power(v, 2)))
 
 
 class Node:
@@ -167,7 +161,7 @@ class QuadTree:
                 if (size / dist) < self.limit:
                     angle = np.arctan2(vec[1], vec[0])
                     denom = np.power(dist * dist + self.eps * self.eps, 3 / 2)
-                    mag = Body.big_g * node.total_mass * dist / denom
+                    mag = constants.big_g * node.total_mass * dist / denom
                     acc += np.array([np.cos(angle), np.sin(angle)]) * mag
                     continue
                 for child in node.children:
