@@ -30,7 +30,7 @@ def _scale_position(bodies: list[Body]) -> numeric:
     :param bodies:
     :return:
     """
-    max_pos = max(vector_len(b.get_pos()) for b in bodies)
+    max_pos = max(vector_len(b.pos) for b in bodies)
     return _next_magnitude(max_pos)
 
 
@@ -43,8 +43,8 @@ def _determine_radii(qtree: QuadTree, body: Body, rad_range: tuple) -> int:
     :return:
     """
     min_r, max_r = rad_range
-    max_m = max(b.get_mass() for b in qtree.get_bodies())
-    return max(min_r, int(body.get_mass() / max_m * max_r))
+    max_m = max(b.m for b in qtree.bodies)
+    return max(min_r, int(body.m / max_m * max_r))
 
 
 def _calc_bar_value(w: int, bar_len: int, pos_scale: numeric) -> numeric:
@@ -130,8 +130,8 @@ def animate(bodies: list[Body], dt: numeric, limit: numeric, eps: numeric) -> No
             m_x1, m_y1 = pygame.mouse.get_pos()
             dx = m_x1 - m_x0
             dy = m_y1 - m_y0
-        for body in qtree.get_bodies():
-            x, y = body.get_pos()
+        for body in qtree.bodies:
+            x, y = body.pos
             x = x / pos_scale * w + offset_x + dx
             y = y / pos_scale * h + offset_y + dy
             r = _determine_radii(qtree, body, (min_r, max_r))
@@ -164,7 +164,7 @@ def animate(bodies: list[Body], dt: numeric, limit: numeric, eps: numeric) -> No
         window.blit(time_text, (time_x, time_y))
 
         # Render the number of bodies left
-        n_bodies = len(qtree.get_bodies())
+        n_bodies = len(qtree.bodies)
         bodies_text = font.render(f'Bodies: {n_bodies}', True, font_color)
         bodies_x = w - bodies_text.get_width() - padx
         bodies_y = time_y + bodies_text.get_height() / 2 + pady

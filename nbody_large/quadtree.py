@@ -41,7 +41,7 @@ class Node:
         self.h = h
         self._bodies = bodies
         self.cm = np.zeros(shape=(2, ))
-        self.total_mass = sum(b.get_mass() for b in bodies)
+        self.total_mass = sum(b.m for b in bodies)
         self.children = []
         self._create_child_nodes()
 
@@ -74,7 +74,7 @@ class Node:
         """
         b_quads = {Quad.NW: [], Quad.NE: [], Quad.SW: [], Quad.SE: []}
         for b in self._bodies:
-            quad = self._find_quadrant(b.get_pos(), self.pos)
+            quad = self._find_quadrant(b.pos, self.pos)
             b_quads[quad].append(b)
         return b_quads
 
@@ -83,7 +83,7 @@ class Node:
         Calculates the center of the mass of the node
         :return:
         """
-        prod = sum(b.get_mass() * b.get_pos() for b in self._bodies)
+        prod = sum(b.m * b.pos for b in self._bodies)
         self.cm = 1 / self.total_mass * prod
 
     def _create_node(self, quad: str, bodies: list) -> None:
@@ -126,7 +126,7 @@ class Node:
         # If there's only one body, calculate the center of mass but don't create
         # any child nodes
         if len(self._bodies) == 1:
-            self.cm = self._bodies[0].get_pos()
+            self.cm = self._bodies[0].pos
             return
         # Create the child nodes for quadrants that have bodies in them
         b_quads = self._split_bodies()
@@ -142,15 +142,9 @@ class QuadTree:
         self.limit = limit
         self.eps = eps
         pos = np.array([0., 0.])
-        self._bodies = bodies
-        dist = max(vector_len(b.get_pos()) for b in bodies)
+        self.bodies = bodies
+        dist = max(vector_len(b.pos) for b in bodies)
         self.root = Node(pos=pos, w=dist, h=dist, bodies=bodies)
-
-    def get_bodies(self) -> list:
-        """
-        :return:
-        """
-        return self._bodies
 
     def step_forward(self) -> None:
         """
@@ -159,13 +153,13 @@ class QuadTree:
         :return:
         """
         # Calculate the acceleration for each body
-        for body in self._bodies:
+        for body in self.bodies:
             stack = [self.root]
             acc = np.zeros(shape=(2, ))
             while stack:
                 node = stack.pop()
                 size = np.mean((node.w, node.h))
-                vec = node.cm - body.get_pos()
+                vec = node.cm - body.pos
                 dist = vector_len(vec)
                 if dist == 0:
                     continue
