@@ -179,4 +179,4 @@ class QuadTree:
                     stack.append(child)
 
             # Update the position of the body
-            body.new_update(acc=acc, dt=self.dt)
+            body.update(acc=acc, dt=self.dt)

@@ -52,15 +52,17 @@ class Body:
         """
         return self.vel
 
-    def new_update(self, acc: np.ndarray, dt: numeric) -> None:
+    def update(self, acc: np.ndarray, dt: numeric) -> None:
         """
-        Updates the position of the body
+        Updates the position of the body using the "drift-kick-drift"
+        integration method
         :param acc:
         :param dt:
         :return:
         """
-        self.pos += self.vel * dt + 0.5 * acc * dt * dt
-        self.vel += acc * dt
+        self.vel += acc * dt * 0.5
+        self.pos += self.vel * dt
+        self.vel += acc * dt * 0.5
 
     def check_collision(self, other: Body) -> bool:
         """
