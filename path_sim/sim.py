@@ -60,7 +60,7 @@ def simulate(tspan: np.ndarray, m: numeric, r: numeric,
         theta = np.arctan2(y, x)
         sol = np.vstack((sol, np.array([x, y])))
         if r_min is not None and r <= r_min:
-            print(f'Crash after {i} days')
+            print(f"Crash after {i} days")
             break
     return sol
 
@@ -82,7 +82,7 @@ def seg_plot(data: np.ndarray, color: tuple = (0.5, 0, 0.5)) -> None:
     rgba[:, 3] = alphas
     lc = LineCollection(segs, linewidths=3, colors=rgba)
     _, a = plt.subplots()
-    plt.scatter(0, 0, c='r', s=100)
+    plt.scatter(0, 0, c="r", s=100)
     plt.grid()
     a.add_collection(lc)
     plt.autoscale()
@@ -104,5 +104,5 @@ def main():
     seg_plot(data)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

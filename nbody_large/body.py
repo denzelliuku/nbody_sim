@@ -35,7 +35,7 @@ class Body:
 
     def update(self, acc: np.ndarray, dt: numeric) -> None:
         """
-        Updates the position of the body using the "drift-kick-drift"
+        Updates the position of the body using the "kick-drift-kick"
         integration method
         :param acc: Acceleration at the current timestep
         :param dt: Size of the timestep
@@ -95,10 +95,10 @@ class Body:
         """
         :return:
         """
-        return f'Body at x={self.pos[0]}, y={self.pos[1]}'
+        return f"Body at x={self.pos[0]}, y={self.pos[1]}"
 
     def __str__(self) -> str:
         """
         :return:
         """
-        return f'Body at x={self.pos[0]}, y={self.pos[1]}'
+        return f"Body at x={self.pos[0]}, y={self.pos[1]}"

@@ -18,10 +18,10 @@ class Quad(Enum):
     """
     Types for the four possible sub-quadrants that a quadrant has
     """
-    NW = 1
-    NE = 2
-    SW = 3
-    SE = 4
+    NW = 1  # Northwest
+    NE = 2  # Northeast
+    SW = 3  # Southwest
+    SE = 4  # Southeast
 
 
 class Node:
@@ -64,7 +64,7 @@ class Node:
             return Quad.SW
         elif -np.pi < direc <= -pi2:
             return Quad.SE
-        print('Unreachable quadrant')
+        print("Unreachable quadrant in _find_quadrant")
         quit(-1)
 
     def _split_bodies(self) -> dict:
@@ -112,7 +112,7 @@ class Node:
             node_se = Node(pos=np.array([x, y]), bodies=bodies, w=half_w, h=half_h)
             self.children.append(node_se)
         else:
-            print('Uncreachable Quadrant')
+            print("Uncreachable quadrant in _create_node")
             quit(-1)
 
     def _create_child_nodes(self) -> None:
@@ -120,10 +120,10 @@ class Node:
         Creates the child nodes if necessary
         :return:
         """
-        # If this node doesn't contain any bodies, nothing needs to be done
+        # If this node doesn"t contain any bodies, nothing needs to be done
         if not self._bodies:
             return
-        # If there's only one body, calculate the center of mass but don't create
+        # If there"s only one body, calculate the center of mass but don"t create
         # any child nodes
         if len(self._bodies) == 1:
             self.cm = self._bodies[0].pos
@@ -161,6 +161,8 @@ class QuadTree:
                 size = np.mean((node.w, node.h))
                 vec = node.cm - body.pos
                 dist = vector_len(vec)
+                # Let"s not include the body itself in the acceleration
+                # calculation
                 if dist == 0:
                     continue
                 if (size / dist) < self.limit:

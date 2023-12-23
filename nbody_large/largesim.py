@@ -65,13 +65,13 @@ def _scale_time(t: numeric) -> tuple[numeric, str]:
     """
     :param t: Time in seconds
     :return: Value of scaled time and the appropriate unit for the
-    time as a string
+        time as a string
     """
     if t < 3600:
-        return t / 60, 'mins'
+        return t / 60, "mins"
     if t < 7 * 24 * 3600:
-        return t / 3600, 'hours'
-    return t / (24 * 3600), 'days'
+        return t / 3600, "hours"
+    return t / (24 * 3600), "days"
 
 
 def animate(bodies: list[Body], dt: numeric, limit: numeric, eps: numeric) -> None:
@@ -86,7 +86,7 @@ def animate(bodies: list[Body], dt: numeric, limit: numeric, eps: numeric) -> No
     body_color = (255, 0, 255)  # Color for the bodies
     font_color = (255, 255, 255)  # Color for the texts
     padx, pady = 10, 10  # Pixels
-    font = pygame.font.SysFont('arial', 13)
+    font = pygame.font.SysFont("arial", 13)
     w, h = 800, 600  # Pixels
     window = pygame.display.set_mode((w, h))
     pos_scale = _scale_position(bodies=bodies)  # [m]
@@ -142,7 +142,7 @@ def animate(bodies: list[Body], dt: numeric, limit: numeric, eps: numeric) -> No
         pygame.draw.line(window, font_color, (bar_x, bar_y),
                          (bar_x + scale_bar_len, bar_y))
         bar_value = _calc_bar_value(w, scale_bar_len, pos_scale)
-        bar_text = font.render(f'{bar_value:.3f} AU', True, font_color)
+        bar_text = font.render(f"{bar_value:.3f} AU", True, font_color)
         bar_text_x, bar_text_y = bar_x + scale_bar_len / 6, bar_y + 2
         window.blit(bar_text, (bar_text_x, bar_text_y))
 
@@ -150,14 +150,14 @@ def animate(bodies: list[Body], dt: numeric, limit: numeric, eps: numeric) -> No
         end = default_timer()
         fps = 1 / (end - start)
         start = end
-        fps_text = font.render(f'fps: {fps:.1f}', True, font_color)
+        fps_text = font.render(f"fps: {fps:.1f}", True, font_color)
         fps_x, fps_y = w - fps_text.get_width() - padx, pady / 2
         window.blit(fps_text, (fps_x, fps_y))
 
         # Render elapsed time
         elapsed += qtree.dt  # Elapsed time in seconds
         scaled_time, time_unit = _scale_time(elapsed)
-        time_text = font.render(f'Duration: {scaled_time:.1f} {time_unit}',
+        time_text = font.render(f"Duration: {scaled_time:.1f} {time_unit}",
                                 True, font_color)
         time_x = w - time_text.get_width() - padx
         time_y = fps_y + time_text.get_height() / 2 + pady
@@ -165,7 +165,7 @@ def animate(bodies: list[Body], dt: numeric, limit: numeric, eps: numeric) -> No
 
         # Render the number of bodies left
         n_bodies = len(qtree.bodies)
-        bodies_text = font.render(f'Bodies: {n_bodies}', True, font_color)
+        bodies_text = font.render(f"Bodies: {n_bodies}", True, font_color)
         bodies_x = w - bodies_text.get_width() - padx
         bodies_y = time_y + bodies_text.get_height() / 2 + pady
         window.blit(bodies_text, (bodies_x, bodies_y))
@@ -246,18 +246,18 @@ def main() -> None:
     """
     pygame.font.init()
     dt = 1 / 5 * 3600  # [s]
-    limit = 2
-    eps = 1e3
+    limit = 0
+    eps = 1e1
     n_bodies = 100
     mass_range = (0.1, 318)  # Earth masses
     vel_range = (1, 10)  # [km/s]
     pos_range = (0, .1)  # [AU]
     rad_range = (0.1, 11)  # Earth radiuses
-    bodies = random_system(n_bodies=n_bodies, mass_range=mass_range, vel_range=vel_range,
-                           pos_range=pos_range, rad_range=rad_range)
-    # bodies = solar_system()
+    # bodies = random_system(n_bodies=n_bodies, mass_range=mass_range, vel_range=vel_range,
+    #                        pos_range=pos_range, rad_range=rad_range)
+    bodies = solar_system()
     animate(bodies=bodies, dt=dt, limit=limit, eps=eps)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
