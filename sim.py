@@ -4,6 +4,7 @@ to decrease the time complexity of the simulation
 """
 
 import pygame
+import constants
 import numpy as np
 
 from body import Body
@@ -11,11 +12,8 @@ from misc import vector_len
 from quadtree import QuadTree
 from timeit import default_timer
 
-# For typing
-numeric = int | float
 
-
-def _next_magnitude(n: numeric) -> numeric:
+def _next_magnitude(n: int | float) -> int | float:
     """
     Returns the next power of ten from n
     :param n:
@@ -24,7 +22,7 @@ def _next_magnitude(n: numeric) -> numeric:
     return np.power(10, np.ceil(np.log10(n)))
 
 
-def _scale_position(bodies: list[Body]) -> numeric:
+def _scale_position(bodies: list[Body]) -> int | float:
     """
     Returns the scale so that the all bodies can be seen on the screen
     :param bodies:
@@ -47,7 +45,7 @@ def _determine_radii(qtree: QuadTree, body: Body, rad_range: tuple) -> int:
     return max(min_r, int(body.m / max_m * max_r))
 
 
-def _calc_bar_value(w: int, bar_len: int, pos_scale: numeric) -> numeric:
+def _calc_bar_value(w: int, bar_len: int, pos_scale: int | float) -> int | float:
     """
     Calculates the distance (in appropriate units) that the length of the
     scale bar (in pixels) corresponds to
@@ -56,16 +54,15 @@ def _calc_bar_value(w: int, bar_len: int, pos_scale: numeric) -> numeric:
     :param pos_scale: The value used to scale the bodies positions in meters
     :return: The value and its unit
     """
-    au = 1.495978707e11  # Astronomical unit [m]
     len_per_pixel = pos_scale / w
-    return bar_len * len_per_pixel / au
+    return bar_len * len_per_pixel / constants.au
 
 
-def _scale_time(t: numeric) -> tuple[numeric, str]:
+def _scale_time(t: int | float) -> tuple[int | float, str]:
     """
     :param t: Time in seconds
     :return: Value of scaled time and the appropriate unit for the
-        time as a string
+    time as a string
     """
     if t < 3600:
         return t / 60, "mins"
@@ -74,7 +71,8 @@ def _scale_time(t: numeric) -> tuple[numeric, str]:
     return t / (24 * 3600), "days"
 
 
-def animate(bodies: list[Body], dt: numeric, limit: numeric, eps: numeric) -> None:
+def animate(bodies: list[Body], dt: int | float, limit: int | float,
+            eps: int | float) -> None:
     """
     :param bodies:
     :param dt:
@@ -83,7 +81,7 @@ def animate(bodies: list[Body], dt: numeric, limit: numeric, eps: numeric) -> No
     :return:
     """
     bg_color = (0, 0, 0)  # Background color
-    body_color = (255, 0, 255)  # Color for the bodies
+    body_color = (0, 255, 0)  # Color for the bodies
     font_color = (255, 255, 255)  # Color for the texts
     padx, pady = 10, 10  # Pixels
     font = pygame.font.SysFont("arial", 13)
@@ -174,7 +172,7 @@ def animate(bodies: list[Body], dt: numeric, limit: numeric, eps: numeric) -> No
     pygame.display.quit()
 
 
-def _randrange(a: numeric, b: numeric) -> float:
+def _randrange(a: int | float, b: int | float) -> float:
     """
     :param a:
     :param b:
@@ -253,11 +251,11 @@ def main() -> None:
     vel_range = (1, 10)  # [km/s]
     pos_range = (0, .1)  # [AU]
     rad_range = (0.1, 11)  # Earth radiuses
-    # bodies = random_system(n_bodies=n_bodies, mass_range=mass_range, vel_range=vel_range,
-    #                        pos_range=pos_range, rad_range=rad_range)
-    bodies = solar_system()
+    bodies = random_system(n_bodies=n_bodies, mass_range=mass_range, vel_range=vel_range,
+                           pos_range=pos_range, rad_range=rad_range)
     animate(bodies=bodies, dt=dt, limit=limit, eps=eps)
 
 
 if __name__ == "__main__":
     main()
+

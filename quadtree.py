@@ -10,9 +10,6 @@ from enum import Enum
 from body import Body
 from misc import vector_len
 
-# For typing
-numeric = int | float
-
 
 class Quad(Enum):
     """
@@ -28,7 +25,7 @@ class Node:
     """
     A node (quadrant) in the quadtree
     """
-    def __init__(self, pos: np.ndarray, w: numeric, h: numeric,
+    def __init__(self, pos: np.ndarray, w: int | float, h: int | float,
                  bodies: list[Body]) -> None:
         """
         :param pos: Location of the middle point of the node
@@ -136,8 +133,15 @@ class Node:
 
 
 class QuadTree:
-    def __init__(self, bodies: list[Body], dt: numeric, limit: numeric = 5,
-                 eps: numeric = 1e3) -> None:
+    def __init__(self, bodies: list[Body], dt: int | float, limit: int | float = 5,
+                 eps: int | float = 1e3) -> None:
+        """
+        :param bodies:
+        :param dt:
+        :param limit:
+        :param eps:
+        :return:
+        """
         self.dt = dt
         self.limit = limit
         self.eps = eps
@@ -176,3 +180,4 @@ class QuadTree:
 
             # Update the position of the body
             body.update(acc=acc, dt=self.dt)
+

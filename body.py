@@ -10,13 +10,10 @@ import numpy as np
 from misc import sq_len
 from typing import Optional
 
-# For typing
-numeric = int | float
-
 
 class Body:
-    def __init__(self, m: numeric, v0: np.ndarray, pos: np.ndarray,
-                 r: numeric, acc: np.ndarray = None) -> None:
+    def __init__(self, m: int | float, v0: np.ndarray, pos: np.ndarray,
+                 r: int | float, acc: np.ndarray = None) -> None:
         """
         :param m: Mass in units of Earth masses
         :param v0: Initial velocity of the body [km/s]
@@ -33,7 +30,7 @@ class Body:
         else:
             self.acc = acc
 
-    def update(self, acc: np.ndarray, dt: numeric) -> None:
+    def update(self, acc: np.ndarray, dt: int | float) -> None:
         """
         Updates the position of the body using the "kick-drift-kick"
         integration method
@@ -102,3 +99,4 @@ class Body:
         :return:
         """
         return f"Body at x={self.pos[0]}, y={self.pos[1]}"
+
