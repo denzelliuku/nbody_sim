@@ -4,7 +4,7 @@ File for the Body class used in the n-body simulation
 
 from __future__ import annotations
 
-import ..constants
+import constants
 import numpy as np
 
 from misc import sq_len
