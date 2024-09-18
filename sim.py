@@ -81,7 +81,6 @@ def animate(bodies: list[Body], dt: int | float, limit: int | float,
     :param eps:
     :return:
     """
-    #clock = pygame.time.Clock()
     bg_color = (0, 0, 0)  # Background color
     font_color = (255, 255, 255)  # Color for the texts
     padx, pady = 10, 10  # Pixels
@@ -100,7 +99,6 @@ def animate(bodies: list[Body], dt: int | float, limit: int | float,
     run = True
     n = 0
     while run:
-        #clock.tick(10)
         window.fill(bg_color)
         # Create the QuadTree for this timestep
         qtree = QuadTree(bodies=bodies, dt=dt, limit=limit, eps=eps)
