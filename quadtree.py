@@ -150,10 +150,11 @@ class QuadTree:
         dist = max(vector_len(b.pos) for b in bodies)
         self.root = Node(pos=pos, w=dist, h=dist, bodies=bodies)
 
-    def step_forward(self) -> None:
+    def step_forward(self, n: int) -> None:
         """
         Takes one step forward in the simulation, i.e., computes the
         next positions of the bodies
+        :param n: The frame count
         :return:
         """
         # Calculate the acceleration for each body
@@ -179,5 +180,5 @@ class QuadTree:
                     stack.append(child)
 
             # Update the position of the body
-            body.update(acc=acc, dt=self.dt)
+            body.update(acc=acc, dt=self.dt, n=n)
 

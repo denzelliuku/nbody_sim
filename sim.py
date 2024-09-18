@@ -1,11 +1,12 @@
 """
-A more optimised version of the N-body simulation that uses a quadtree structure
-to decrease the time complexity of the simulation
+Some kind of a N-body simulation that uses a quadtree structure
+to try to decrease the time complexity of the simulation
 """
 
 import pygame
 import constants
 import numpy as np
+import pygame.gfxdraw
 
 from body import Body
 from misc import vector_len
@@ -80,8 +81,8 @@ def animate(bodies: list[Body], dt: int | float, limit: int | float,
     :param eps:
     :return:
     """
+    #clock = pygame.time.Clock()
     bg_color = (0, 0, 0)  # Background color
-    body_color = (0, 255, 0)  # Color for the bodies
     font_color = (255, 255, 255)  # Color for the texts
     padx, pady = 10, 10  # Pixels
     font = pygame.font.SysFont("arial", 13)
@@ -89,7 +90,7 @@ def animate(bodies: list[Body], dt: int | float, limit: int | float,
     window = pygame.display.set_mode((w, h))
     pos_scale = _scale_position(bodies=bodies)  # [m]
     scale_bar_len = w // 16  # Pixels
-    min_r, max_r = 1, 5  # Pixels
+    min_r, max_r = 2, 8  # Pixels
     start = default_timer()  # To track fps
     elapsed = 0  # To track the total elapsed time
     dragging = False
@@ -97,7 +98,9 @@ def animate(bodies: list[Body], dt: int | float, limit: int | float,
     dx, dy = 0, 0  # Change in the position of the mouse while dragging
     offset_x, offset_y = w // 2, h // 2  # Shift the origin of the coordinates
     run = True
+    n = 0
     while run:
+        #clock.tick(10)
         window.fill(bg_color)
         # Create the QuadTree for this timestep
         qtree = QuadTree(bodies=bodies, dt=dt, limit=limit, eps=eps)
@@ -121,27 +124,50 @@ def animate(bodies: list[Body], dt: int | float, limit: int | float,
                 dragging = False
 
         # Update the state of the bodies
-        qtree.step_forward()
+        qtree.step_forward(n=n)
 
-        # Render the new state
+        # Render the bodies
         if dragging:
             m_x1, m_y1 = pygame.mouse.get_pos()
             dx = m_x1 - m_x0
             dy = m_y1 - m_y0
+
+        pygame.Surface.lock(window)
         for body in qtree.bodies:
             x, y = body.pos
             x = x / pos_scale * w + offset_x + dx
             y = y / pos_scale * h + offset_y + dy
             r = _determine_radii(qtree, body, (min_r, max_r))
-            pygame.draw.circle(window, body_color, (x, y), r)
+            # Plot body itself
+            pygame.draw.circle(window, body.color, (x, y), r)
+            # Plot the "trace" of old positions
+            n_traces = len(body.trace)
+            for i in range(1, n_traces):
+                x1, y1 = body.trace[i - 1]
+                x2, y2 = body.trace[i]
+                alpha = (int(255 * ((i + 1) / n_traces)), )
+                c = body.color + alpha
+                x1 = int(x1 / pos_scale * w + offset_x + dx)
+                y1 = int(y1 / pos_scale * h + offset_y + dy)
+                x2 = int(x2 / pos_scale * w + offset_x + dx)
+                y2 = int(y2 / pos_scale * h + offset_y + dy)
+                # Seems gfxdraw.line() uses signed int16 for coordinates, which might
+                # overflow when zooming in. Perhaps we should not draw things outside
+                # the screen, but this will do for now.
+                try:
+                    pygame.gfxdraw.line(window, x1, y1, x2, y2, c)
+                except OverflowError:
+                    pass
 
+        pygame.Surface.unlock(window)
         # Render the scaling bar showing the distance scale
         bar_x, bar_y = w - scale_bar_len - padx, h - (pady * 5)
         pygame.draw.line(window, font_color, (bar_x, bar_y),
                          (bar_x + scale_bar_len, bar_y))
         bar_value = _calc_bar_value(w, scale_bar_len, pos_scale)
         bar_text = font.render(f"{bar_value:.3f} AU", True, font_color)
-        bar_text_x, bar_text_y = bar_x + scale_bar_len / 6, bar_y + 2
+        text_w = bar_text.get_width()
+        bar_text_x, bar_text_y = bar_x - text_w + scale_bar_len, bar_y + 2
         window.blit(bar_text, (bar_text_x, bar_text_y))
 
         # Render fps
@@ -167,7 +193,9 @@ def animate(bodies: list[Body], dt: int | float, limit: int | float,
         bodies_x = w - bodies_text.get_width() - padx
         bodies_y = time_y + bodies_text.get_height() / 2 + pady
         window.blit(bodies_text, (bodies_x, bodies_y))
-
+        
+        # Update frame count and screen
+        n += 1
         pygame.display.update()
     pygame.display.quit()
 
@@ -244,15 +272,16 @@ def main() -> None:
     """
     pygame.font.init()
     dt = 1 / 5 * 3600  # [s]
-    limit = 0
+    limit = 1
     eps = 1e1
-    n_bodies = 100
-    mass_range = (0.1, 318)  # Earth masses
-    vel_range = (1, 10)  # [km/s]
-    pos_range = (0, .1)  # [AU]
-    rad_range = (0.1, 11)  # Earth radiuses
-    bodies = random_system(n_bodies=n_bodies, mass_range=mass_range, vel_range=vel_range,
-                           pos_range=pos_range, rad_range=rad_range)
+    #n_bodies = 100
+    #mass_range = (0.1, 318)  # Earth masses
+    #vel_range = (1, 10)  # [km/s]
+    #pos_range = (0, .1)  # [AU]
+    #rad_range = (0.1, 11)  # Earth radiuses
+    #bodies = random_system(n_bodies=n_bodies, mass_range=mass_range, vel_range=vel_range,
+    #                       pos_range=pos_range, rad_range=rad_range)
+    bodies = solar_system()
     animate(bodies=bodies, dt=dt, limit=limit, eps=eps)
 
 

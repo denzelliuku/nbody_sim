@@ -20,3 +20,4 @@ def vector_len(v: np.ndarray) -> int | float:
     :return:
     """
     return np.sqrt(sum(np.power(v, 2)))
+

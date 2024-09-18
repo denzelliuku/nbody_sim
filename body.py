@@ -10,32 +10,95 @@ import numpy as np
 from misc import sq_len
 from typing import Optional
 
+TRACE_POSITIONS = 100
+TRACE_INTERVAL = 20
+
+
+def _conv_helper(n: int | float, h: int | float, s: int | float, v: int | float) \
+    -> int | float:
+    """
+    Helper function used in the color conversion
+    :param n:
+    :param h:
+    :param s:
+    :param v:
+    :return:
+    """
+    k = (n + h / 60) % 6
+    return v - v * s * max(0, min(k, 4 - k, 1))
+
+
+def _hsv2rgb(hue: int | float, saturation: int | float, value: int | float) \
+    -> tuple[int, int, int]:
+    """
+    Conversion from wikipedia:
+    https://en.wikipedia.org/wiki/HSL_and_HSV
+    :param hue:
+    :param saturation:
+    :param value:
+    :return:
+    """
+    r = _conv_helper(n=5, h=hue, s=saturation, v=value) * 255
+    g = _conv_helper(n=3, h=hue, s=saturation, v=value) * 255
+    b = _conv_helper(n=1, h=hue, s=saturation, v=value) * 255
+    return int(r), int(g), int(b)
+
+
+def _gen_random_color() -> tuple[int, int, int]:
+    """
+    :return:
+    """
+    hue = int(np.random.random() * 360)
+    sat = 1
+    val = 1
+    return _hsv2rgb(hue=hue, saturation=sat, value=val)
+
 
 class Body:
     def __init__(self, m: int | float, v0: np.ndarray, pos: np.ndarray,
-                 r: int | float, acc: np.ndarray = None) -> None:
+                 r: int | float, acc: np.ndarray = None,
+                 color: tuple[int, int, int] = None) -> None:
         """
         :param m: Mass in units of Earth masses
         :param v0: Initial velocity of the body [km/s]
         :param pos: Position of the body at the start [km]
         :param r: Radius of the body [Earth radiuses]
         :param acc: Initial acceleration of the body [m/s^2]
+        :param color: Color that the body will be rendered in RGB format. If None,
+        a random color will be generated.
+        :return:
         """
         self.m = m * constants.m_e
         self.vel = v0 * 1e3
         self.pos = pos * constants.au
+        self.trace = [self.pos.copy()]  # To keep track of older positions
         self.r = r * constants.r_e
         if acc is None:
             self.acc = np.zeros((2, ))
         else:
             self.acc = acc
+        if color is None:
+            self.color = _gen_random_color()
+        else:
+            self.color = color
 
-    def update(self, acc: np.ndarray, dt: int | float) -> None:
+    def _save_pos(self) -> None:
+        """
+        :return:
+        """
+        if len(self.trace) >= TRACE_POSITIONS:
+            del self.trace[0]
+            self.trace.append(self.pos.copy())
+            return
+        self.trace.append(self.pos.copy()) 
+
+    def update(self, acc: np.ndarray, dt: int | float, n: int) -> None:
         """
         Updates the position of the body using the "kick-drift-kick"
         integration method
         :param acc: Acceleration at the current timestep
         :param dt: Size of the timestep
+        :param n: Frame count
         :return:
         """
         # Update the velocity using the acceleration at the previous timestep
@@ -44,6 +107,9 @@ class Body:
         # Update the position using the velocity updated with the acceleration
         # at the previous timestep
         self.pos += self.vel * dt
+        # Save the current position (at specific intervals)
+        if n % TRACE_INTERVAL == 0:
+            self._save_pos()
 
         # Update the velocity a second time with the acceleration of the current
         # timestep
@@ -86,7 +152,7 @@ class Body:
         r1 = self.r
         r2 = other.r
         r = np.sqrt(r1 * r1 + r2 * r2) / constants.r_e
-        return Body(m=m, v0=vel, pos=pos, r=r)
+        return Body(m=m, v0=vel, pos=pos, r=r, color=self.color)
 
     def __repr__(self) -> str:
         """
